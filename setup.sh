@@ -2,6 +2,15 @@
 
 python3 -m venv env
 
-source env/bin/activate && wait
+echo "GROQ_API_KEY=" > .env
 
-pip install pypdf
+venv_folder="env/bin/python"
+
+install_packages() {
+    "$venv_folder" -m pip install --upgrade pip
+    "$venv_folder" -m pip install "$@"
+}
+
+# Chamando a função com os pacotes desejados
+install_packages streamlit streamlit-chat pypdf python-dotenv
+install_packages langchain[groq] langchain-huggingface langchain langchain-community faiss-cpu langchain_core
