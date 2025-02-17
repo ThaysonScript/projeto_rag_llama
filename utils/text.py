@@ -1,5 +1,5 @@
 from pypdf import PdfReader
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 def process_text(files=''):
     text = ''
@@ -10,15 +10,13 @@ def process_text(files=''):
         for page in pdf_reader.pages:
             text += page.extract_text()
                     
-    return text[:10]
+    return text
             
             
 def create_text_chunks(text, chunks, overlap):
-    text_splitter = CharacterTextSplitter(
-        separator='\n',
+    text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunks,
-        chunk_overlap=overlap,
-        length_function=len
+        chunk_overlap=overlap
     )
     
     return text_splitter.split_text(text)
