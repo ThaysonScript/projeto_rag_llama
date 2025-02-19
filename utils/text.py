@@ -7,6 +7,7 @@ def process_text(files=''):
     for file in files:
         pdf_reader = PdfReader(file)
         
+        
         for page in pdf_reader.pages:
             text += page.extract_text()
                     

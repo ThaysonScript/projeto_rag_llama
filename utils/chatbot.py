@@ -3,27 +3,27 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains import ConversationalRetrievalChain
 from langchain_groq import ChatGroq
-
-
-embedding_models = {
-    'all-MiniLM-L6-v2': 'sentence-transformers/all-MiniLM-L6-v2',
-    'all-mpnet-base-v2': 'sentence-transformers/all-mpnet-base-v2',
-    'multi-qa-MiniLM-L6-cos-v1': 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1',
-}
-
-llm_models = {
-    'Llama3-8B': 'groq/llama3-8b-8192',
-    'GPT-4': 'openai/gpt-4',
-    'Mistral-7B': 'mistralai/mistral-7b'
-}
+from langchain.memory import ConversationBufferMemory
+from utils.dictionaries import embedding_models
 
 
 def load_embeddings():
     embedding_list = []
 
-    embedding_list.append(HuggingFaceEmbeddings(model_name=embedding_models['all-MiniLM-L6-v2']))
-    embedding_list.append(HuggingFaceEmbeddings(model_name=embedding_models['all-mpnet-base-v2']))
-    embedding_list.append(HuggingFaceEmbeddings(model_name=embedding_models['multi-qa-MiniLM-L6-cos-v1']))
+    # embedding_list.append(
+    #     HuggingFaceEmbeddings(model_name=embedding_models['all-MiniLM-L6-v2'])
+    # )
+    # embedding_list.append(
+    #     HuggingFaceEmbeddings(model_name=embedding_models['all-mpnet-base-v2'])
+    #     )
+    # embedding_list.append(
+    #     HuggingFaceEmbeddings(model_name=embedding_models['multi-qa-MiniLM-L6-cos-v1'])
+    # )
+    
+    for embedding in embedding_models:
+        embedding_list.append(
+            HuggingFaceEmbeddings(model_name=embedding_models[embedding])
+        )
     
     return embedding_list
 
@@ -37,12 +37,21 @@ def create_vectorstore(chunks, model=embedding_models['all-MiniLM-L6-v2']):
 
 
 def create_conversation_chain(vectorstore, model_name='llama3-8b-8192', search_model_kargs=1, chunk_type=0):
+    print(f'Dentro do chain: {vectorstore}')
     llm = ChatGroq(model=model_name)
+    memory = ConversationBufferMemory(memory_key="chat_history", output_key="answer", return_messages=True)
     
-    resposta = ConversationalRetrievalChain.from_llm(
+    if isinstance(vectorstore, list):  
+        print("AKKAKAAAAAAAAAAAAAAAAAAAAAAAAAAAKKKKKKKKKK")
+        retriever = vectorstore[chunk_type].as_retriever(search_type="similarity", search_kwargs={"k": search_model_kargs})
+    else:
+        retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": search_model_kargs})
+        
+    conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
-        retriever=vectorstore[chunk_type].as_retriever(search_kwargs={"k": search_model_kargs}),
+        retriever=retriever,
+        memory=memory,
         return_source_documents=True,
     )
     
-    return resposta
+    return conversation_chain

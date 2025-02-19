@@ -13,4 +13,4 @@ install_packages() {
 
 # Chamando a função com os pacotes desejados
 install_packages streamlit streamlit-chat pypdf python-dotenv beautifulsoup4
-install_packages langchain[groq] langchain-huggingface langchain langchain-community faiss-cpu langchain_core
+install_packages langchain[groq] langchain-huggingface langchain langchain-community faiss-cpu langchain_core langgraph
