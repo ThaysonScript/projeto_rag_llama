@@ -41,8 +41,7 @@ def create_conversation_chain(vectorstore, model_name='llama3-8b-8192', search_m
     llm = ChatGroq(model=model_name)
     memory = ConversationBufferMemory(memory_key="chat_history", output_key="answer", return_messages=True)
     
-    if isinstance(vectorstore, list):  
-        print("AKKAKAAAAAAAAAAAAAAAAAAAAAAAAAAAKKKKKKKKKK")
+    if isinstance(vectorstore, list):
         retriever = vectorstore[chunk_type].as_retriever(search_type="similarity", search_kwargs={"k": search_model_kargs})
     else:
         retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": search_model_kargs})
