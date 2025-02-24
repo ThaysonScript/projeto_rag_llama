@@ -1,4 +1,4 @@
 .env
 env/
-embeddings_salvos
+embeddings_salvos*
 data*
