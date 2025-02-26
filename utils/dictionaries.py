@@ -7,8 +7,10 @@ embedding_models = {
     'paraphrase-multilingual-MiniLM-L12-v2': 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
 }
 
+
 llm_models = {
     'llama3-8b-8192': 'llama3-8b-8192',
+    'llama3-70b-8192': 'llama3-70b-8192',
     'gemma2-9b-it': 'gemma2-9b-it',
     'deepseek-r1-distill-qwen-32b': 'deepseek-r1-distill-qwen-32b'
 }

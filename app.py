@@ -3,11 +3,7 @@ import streamlit as st
 from streamlit_chat import message
 from langchain.prompts import PromptTemplate
 
-from ui.markdowns import (
-    end_div,
-    styles,
-    div
-)
+from ui.markdowns import styles
 from utils import chatbot, text as txt
 from utils.load_vectorstores import load_vector_store
 from utils.dictionaries import (
@@ -67,7 +63,6 @@ def add_new_configs_for_files(type=''):
                          step=1, key='slider_docs')
 
 
-
 def pre_loaded(type=''):
     if type == 'emb':
         return st.selectbox("🔍 Embeddings Pré-carregados:", options=list(embedding_models_carregados.keys()), index=0)
@@ -78,8 +73,10 @@ def pre_loaded(type=''):
 def loading_vector_Store(embeddings_carregados, preloaded):
     if embeddings_carregados == 'Embedding 1':
         return preloaded['faiss_vector1']
+    
     elif embeddings_carregados == 'Embedding 2':
         return preloaded['faiss_vector2']
+    
     elif embeddings_carregados == 'Embedding 3':
         return preloaded['faiss_vector3']
 
@@ -88,7 +85,8 @@ def loading_vector_Store(embeddings_carregados, preloaded):
 prompt_template = PromptTemplate(
     input_variables=["company", "question"],
     template="""
-Você é um assistente de análise financeira. Com base nos dados disponíveis, responda de forma clara e objetiva à seguinte pergunta:
+Você é um assistente de análise de documentos relacionados a finanças e investimentos. 
+Com base nos dados disponíveis, responda de forma clara e objetiva as seguintes perguntas que o usuario desejar.
 
 Empresa: {company}
 Pergunta: {question}
@@ -127,9 +125,11 @@ def main():
         
         st.subheader('📂 Arquivos carregados')
         pdf_uploaded = st.file_uploader('📥 Carregue seus PDFs', accept_multiple_files=True)
+        
         if st.button('🚀 Processar Arquivo') and pdf_uploaded:
             with st.spinner("🛠️ Processando arquivo..."):
                 all_files_text = txt.process_text(pdf_uploaded)
+                
                 if all_files_text != '':
                     chunks = txt.create_text_chunks(text=all_files_text, chunks=chunk_size, overlap=overlap)
                     vector_store = chatbot.create_vectorstore(chunks=chunks, model=embedding_models[selected_embedding])
@@ -200,11 +200,13 @@ def main():
                 st.error("Processe um arquivo primeiro para usar a função de responder somente a texto carregado")
         
         # Executa a cadeia com o prompt já formatado
-        response = st.session_state.conversational({'question': formatted_question, 'chat_history': chat_history})
-        st.session_state.messages.append((formatted_question, response['answer']))
+        response = st.session_state.conversational({'query': formatted_question, 'chat_history': chat_history})
+        
+        # answer_text = response.get('answer', 'Não foi possível encontrar uma resposta.')
+        st.session_state.messages.append((formatted_question, response['result']))
         
         message(formatted_question, is_user=True, key=f"user_{len(st.session_state.messages)}")
-        message(response['answer'], is_user=False, key=f"bot_{len(st.session_state.messages)}")
+        message(response['result'], is_user=False, key=f"bot_{uuid.uuid4()}")
         
 
 if __name__ == '__main__':
